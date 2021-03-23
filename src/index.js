@@ -1,7 +1,9 @@
-const getToyRequest = 'http://localhost:3000/toys'
-const toyCollection = document.querySelector("#toy-collection")
-const form = document.querySelector(".add-toy-form")
+const toyGetRequest = 'http://localhost:3000/toys'
+const toyCollection = document.querySelector('#toy-collection')
+const form = document.querySelector('.add-toy-form')
 
+// The hash (#) specifies to select elements by their IDs
+// The dot (.) specifies to select elements by their classname
 
 let addToy = false;
 
@@ -20,59 +22,60 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function getToy() {
-  fetch(getToyRequest)
+  fetch(toyGetRequest)
   .then(response => response.json())
   .then(toysObject => {
-    toysObject.forEach(toysObject => renderToys(toysObject))
-  })
-}
+    toysObject.forEach((toy) => {
+      renderToy(toy)
+      }
+    )}
+  )}
 
-function renderToys(toy) {
-  const div = document.createElement('div') // With the response data, make a <div class="card"> for each toy and add it to the toy-collection div.
+function renderToy(toy) {
+  const div = document.createElement('div')
   div.dataset.id = toy.id
-  let {name, image, likes} = toy
+  div.classList.add('card')
   div.innerHTML = `
-  <h2>${name}</h2>
-  <img src=${image} class="toy-avatar" />
-  <p>${likes} Likes </p>
-  <button class="like-btn">Like <3</button>`
+    <h2>${toy.name}</h2>
+    <img src=${toy.image} class="toy-avatar" />
+    <p> ${toy.likes} Likes </p>
+    <button class="like-btn">Like <3</button>`
   toyCollection.append(div)
-}
+  }
 
-getToy ()
+getToy()
 
 form.addEventListener('submit', (event) => {
-  event.preventDefault()
+  event.preventDefault() // stops from refreshing
   const name = event.target.name.value
   const image = event.target.image.value
-
-  fetch(getToyRequest, {
-    method: "POST",
+  fetch(toyGetRequest, {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    },
-    
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
     body: JSON.stringify({
-      name,
-      image,
-      likes: 0
+        name,
+        image,
+        "likes": 0
     })
   })
-  .then(response => response.json)
-  .then(newToy => {
-    renderToys(newToy)
-    event.target.reset()
+    .then(response => response.json())
+    .then(newToy => {
+      renderToy(newToy)
+      event.target.reset()
+    
   })
 })
 
 toyCollection.addEventListener('click', (event) => {
-  if (event.target.matches("button.like-btn")) {
+  if (event.target.matches('button.like-btn')) {
     const div = event.target.closest('div')
     const pLikes = event.target.previousElementSibling
     const newLikes = parseInt(pLikes.textContent) + 1
-    fetch(`${getToyRequest}/${div.dataset.id}`, {
-      method: "PATCH",
+    fetch(`${toyGetRequest}/${div.dataset.id}`, {
+      method: 'PATCH',
       headers: {
         "content-type": "application/json",
         accept: "application/json"
@@ -82,10 +85,7 @@ toyCollection.addEventListener('click', (event) => {
       })
     })
     .then(response => response.json())
-    .then(data => pLikes.textContent = `${data.likes} Likes`)
-  }
+    .then(data => pLikes.textContent = `${data.likes} Likes`)}
 })
-
-
 
 
